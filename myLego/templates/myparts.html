@@ -1,0 +1,114 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+<h1>myLego</h1>
+
+    <p>Welcome to <em>myLego</em>, a Django website to manage my Lego.</p>
+
+<h2>My Lego Parts</h2>
+
+    <p>The myLego library has the following record counts:</p>
+    <ul>
+        <li><strong>Total Parts:</strong> {{ num_myparts }}</li>
+        <li><strong>Parts on Hand:</strong> {{ num_unallocated_parts }}</li>
+        <li><strong>Allocated Parts:</strong> {{ num_allocated_parts }}</li>
+    </ul>
+
+<h2>My Parts Listing</h2>
+
+    <h3>Parts on Hand</h3>
+        <p>(Parts not allocated to any set)</p>
+        <br>
+
+    <div class="tablepane">
+        <table id="tablelist">
+            <col align="center">
+            <col align="left">
+            <col align="left">
+            <col align="center">
+            <col align="center">
+            <tr>
+                <th style="text-align:center">Qty</th>
+                <th>Code</th>
+                <th>Description</th>
+                <th style="text-align:center">Colour</th>
+                <th style="text-align:center">Picture</th>
+            </tr>
+            {% for part in my_unallocated_parts_list %}
+                <tr>
+                    <td style="text-align:center">{{ part.quantity }}</a></td>
+                    <td>
+                        <a href="{% url 'partdetails' code=part.mypartobj.part.code %}">
+                            {{ part.mypartobj.part.code }}
+                        </a>
+                    </td>
+                    <td>{{ part.mypartobj.part.description }}</a></td>
+                    <td style="text-align:center;
+                        background-color:{{ part.mypartobj.colour.rgb_colour }};
+                        color:{{ part.mypartobj.colour.contrast_colour }};">
+                        {{ part.mypartobj.colour.description }}
+                    </td>
+                    <td style="text-align:center">
+                        <img src="/home/mike/python/djenv/lego/{{ part.mypartobj.part.picture }}"
+                             alt="{{ part.mypartobj.part.picture }}">
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <h3>Allocated Parts</h3>
+    <p>(Parts currently allocated to a set)</p>
+    <br>
+
+    <div class="tablepane">
+        <table id="tablelist">
+            <col align="center">
+            <col align="left">
+            <col align="center">
+            <col align="center">
+            <col align="center">
+            <tr>
+                <th style="text-align:center">Qty</th>
+                <th>Code</th>
+                <th>Description</th>
+                <th style="text-align:center">Colour</th>
+                <th style="text-align:center">Allocation</th>
+                <th style="text-align:center">Picture</th>
+            </tr>
+            {% for part in my_allocated_parts_list %}
+                <tr>
+                    <td style="text-align:center">{{ part.quantity }}</a></td>
+                    <td>
+                        <a href="{% url 'partdetails' code=part.mypartobj.part.code %}">
+                            {{ part.mypartobj.part.code }}
+                        </a>
+                    </td>
+                    <td>{{ part.mypartobj.part.description }}</a></td>
+                    <td style="text-align:center;
+                        background-color:{{ part.mypartobj.colour.rgb_colour }};
+                        color:{{ part.mypartobj.colour.contrast_colour }};">
+                        {{ part.mypartobj.colour.description }}
+                    </td>
+                    <td style="text-align:center">
+                        <a href="{% url 'setdetails' code=part.mypartobj.allocation.code %}">
+                            {{ part.mypartobj.allocation.code }}
+                        </a>
+                    </td>
+                    <td style="text-align:center">
+                        <img src="/home/mike/python/djenv/lego/{{ part.mypartobj.part.picture }}"
+                             alt="{{ part.mypartobj.part.picture }}">
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+<h2>My Part Functions</h2>
+
+    <p><a href="">None</a></p><br>
+
+    <p>You have visited {{ num_visits_myparts }}{% if num_visits_myparts == 1 %} time{% else %} times{% endif %}.</p>
+
+{% endblock %}

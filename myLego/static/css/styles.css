@@ -1,0 +1,331 @@
+/* Window sizings. */
+/* Including header, footer, etc styles. */
+
+#header {
+    width: auto;
+    height: 40px;
+    padding: 5px 40px;
+    background: #417690;
+    line-height: 40px;
+    color: #ffc;
+    overflow: hidden;
+}
+
+#header a:link, #header a:visited {
+    color: #fff;
+}
+
+#header a:focus , #header a:hover {
+    text-decoration: underline;
+}
+
+#branding {
+    float: left;
+}
+
+#branding h1 {
+    padding: 0;
+    margin: 0 20px 0 0;
+    font-weight: 300;
+    font-size: 24px;
+    color: #f5dd5d;
+}
+
+#branding h1, #branding h1 a:link, #branding h1 a:visited {
+    color: #f5dd5d;
+}
+
+#branding h2 {
+    padding: 0 10px;
+    font-size: 14px;
+    margin: -8px 0 8px 0;
+    font-weight: normal;
+    color: #ffc;
+}
+
+#branding a:hover {
+    text-decoration: none;
+}
+
+#user-tools {
+    float: right;
+    padding: 0;
+    margin: 0 0 0 20px;
+    font-weight: 300;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-align: right;
+}
+
+#user-tools a {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+#user-tools a:focus, #user-tools a:hover {
+    text-decoration: none;
+    border-bottom-color: #79aec8;
+    color: #79aec8;
+}
+
+/* Side bar. */
+
+.sidebar-nav {
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+}
+
+/* Lists of Lego colours, parts, sets, etc. */
+/* List window. */
+
+#listbullet {
+    list-style: square;
+    padding: 0;
+    border: 3px solid #ddd;
+    height: 400px;
+    overflow-y: auto;
+}
+
+/* List entries. */
+
+#listbullet li {
+    padding: 4px 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Block text. */
+/* Used to border <a> text, used with other styles. */
+
+.blocktext {
+    border-style:solid;
+    border-width:1px;
+    border-color:black;
+}
+
+/* Bullet before the list entry. */
+
+#listbullet li:before {
+    content: "";
+    background-color: gray;
+    line-height: 1em;
+    width: 0.75em;
+    height: 0.75em;
+    float: left;
+    margin: .25em .25em 0;
+    border-radius: 50%;
+}
+
+/* Table of Lego set parts.
+/* Table window. */
+
+.tablepane {
+    border: 3px solid #aaa;
+    display: inline-block;
+    overflow-y: scroll;
+    max-height:400px;
+}
+
+table#tablelist {
+    border: 3px solid #ddd;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+/* Table rows. */
+
+table#tablelist td, th {
+    border: 3px #ddd;
+    padding: 8px;
+}
+
+/* Table row pictures. */
+
+table#tablelist img {
+    max-height:50px;
+    max-width:50px;
+    height:auto;
+    width:auto;
+}
+
+/* Table shading odd rows. */
+
+table#tablelist tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+/* Wait spinner for forms that take a long time. */
+
+#loading {
+    display:none;
+    position:fixed;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(255,255,255,0.8);
+    z-index:1000;
+}
+
+#loadingcontent {
+    display:table;
+    position:fixed;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+}
+
+#loadingspinner {
+    display: table-cell;
+    vertical-align:middle;
+    width: 100%;
+    text-align: center;
+    font-size:larger;
+    padding-top:80px;
+}
+
+/* Formatting for login related pages. */
+
+.login #container {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    min-width: 300px;
+    width: 450px;
+    margin: 100px auto;
+
+}
+
+.login .form-row {
+    padding: 4px 0;
+    float: left;
+    width: 100%;
+    border-bottom: none;}
+
+.login .form-row td {
+    padding-right: 0.5em;
+    line-height: 2em;
+    font-size: 1em;
+    clear: both;
+    color: #333;
+}
+
+.login .form-row #id_formtag {
+    clear: both;
+    padding: 8px;
+    width: 100%;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+}
+
+.login .submit-row {
+    clear: both;
+    padding: 1em 0 0 9.4em;
+    margin: 0;
+    border: none;
+    background: none;
+    text-align: left;
+}
+
+.login .password-reset-link, .login-again-link {
+    text-align: center;
+}
+
+.errornote {
+    font-size: 14px;
+    font-style: italic;
+    font-weight: 700;
+    display: block;
+    padding: 10px 12px;
+    margin: 0 0 10px 0;
+    color: #ba2121;
+    border: 1px solid #ba2121;
+    border-radius: 4px;
+    background-color: #fff;
+    background-position: 5px 12px;
+}
+
+.myform #container {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    width: 28em;
+    min-width: 300px;
+    margin: 100px auto;
+}
+
+.myform .form-row {
+    padding: 4px 4px;
+    float: left;
+    width: 100%;
+    border-bottom: none;}
+
+.myform .form-row td {
+    padding-right: 0.5em;
+    line-height: 2em;
+    font-size: 1em;
+    clear: both;
+    color: #333;
+}
+
+.myform .form-row #entry {
+    clear: both;
+    padding: 8px;
+    width: 100%;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+}
+
+.myform .submit-row {
+    clear: both;
+    padding: 1em 0 0 1em;
+    margin: 0;
+    border: none;
+    background: none;
+    text-align: center;
+}
+
+.myformleft #container {
+    float: left;
+    border-radius: 4px;
+    overflow: hidden;
+    min-width: 300px;
+}
+
+.myformleft div #functions {
+    clear: both;
+}
+
+.myformleft .form-row {
+    padding: 4px 4px;
+    border-bottom: none;}
+
+.myformleft .form-row td {
+    padding-right: 0.5em;
+    line-height: 2em;
+    font-size: 1em;
+    clear: both;
+    color: #333;
+}
+
+.myformleft .form-row #entry {
+    clear: both;
+    padding: 4px 4px;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+}
+
+.myformleft .submit-row {
+    clear: both;
+    padding: 1em 0 0 1em;
+    margin: 0;
+    border: none;
+    background: none;
+    text-align: center;
+}

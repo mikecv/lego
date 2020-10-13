@@ -1,0 +1,54 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% load static %}
+
+<script src="{% static 'scripts/contrastColour.js' %}"></script>
+
+<h1>myLego</h1>
+
+<h1 id="test"></h1>
+
+    <p>Welcome to <em>myLego</em>, a Django website to manage my Lego.</p>
+
+<h2>Lego Colours</h2>
+
+    <p>The myLego library has the following record counts:</p>
+    <ul>
+        <li><strong>Colours:</strong> {{ num_colours }}</li>
+    </ul>
+
+<h2>Colour Listing</h2>
+    <br>
+
+    <div class="tablepane">
+        <table id="tablelist">
+            <col align="left">
+            <col align="left">
+            <col align="center">
+            <tr>
+                <th>Code</th>
+                <th>Description</th>
+                <th style="text-align:center">RGB Colour</th>
+            </tr>
+            {% for colour in colours_list %}
+            <tr>
+                <td> {{ colour.code }}</a></td>
+                <td>{{ colour.description }}</td>
+                {% if colour.rgb_colour != "N/A" %}
+                    <td style="text-align:center; background-color:{{ colour.rgb_colour }}; color:{{ colour.contrast_colour }};">{{ colour.rgb_colour }}</td>
+                {% else %}
+                    <td style="text-align:center; background-color:{{ colour.rgb_colour }}; color:{{ colour.contrast_colour }};">N/A</td>
+            {% endif %}
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+
+<h2>Colour Functions</h2>
+
+    <p><a href="{% url 'getcols' %}">Get all Lego colours</a></p><br>
+
+    <p>You have visited {{ num_visits_colours }}{% if num_visits_colours == 1 %} time{% else %} times{% endif %}.</p>
+
+{% endblock %}

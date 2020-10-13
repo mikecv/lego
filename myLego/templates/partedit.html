@@ -1,0 +1,42 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+<body class="myformleft">
+
+    <h1>myLego</h1>
+
+        <p>Welcome to <em>myLego</em>, where details for parts in the database can be edited.</p>
+
+    <h2>Part Details</h2><br>
+
+        <div id="container">
+            <form action="{% url 'partedit' code=part.code %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-row">
+                    <td id="entry">{{ form.part_code.label_tag }}</td>
+                    <td id="entry">{{ form.part_code }}</td>
+                </div>
+                <div class="form-row">
+                    <td id="entry">{{ form.part_description.label_tag }}</td>
+                    <td id="entry">{{ form.part_description }}</td>
+                </div>
+                <div class="form-row">
+                    <td id="entry">{{ form.part_picture.label_tag }}</td>
+                    <td id="entry">{{ form.part_picture }}</td>
+                </div>
+                <div class="submit-row">
+                    <input id="submitbtn" type="submit" value="Save" />
+                </div>
+            </form>
+        </div>
+
+</body>
+
+    <div id="functions">
+        <br>
+        <h2>Part Edit Functions</h2>
+            <p><a href="">None</a></p><br>
+    </div>
+
+{% endblock %}

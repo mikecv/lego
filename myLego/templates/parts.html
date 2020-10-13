@@ -1,0 +1,51 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+<h1>myLego</h1>
+
+    <p>Welcome to <em>myLego</em>, a Django website to manage my Lego.</p>
+
+<h2>Lego Parts</h2>
+
+    <p>The myLego library has the following record counts:</p>
+    <ul>
+        <li><strong>Parts:</strong> {{ num_parts }}</li>
+    </ul>
+
+<h2>Part Listing</h2>
+
+    <p>The myLego library has the following parts defined:</p>
+    <br>
+
+    <div class="tablepane">
+        <table id="tablelist">
+            <col align="left">
+            <col align="left">
+            <col align="center">
+            <tr>
+                <th>Code</th>
+                <th>Description</th>
+                <th style="text-align:center">Picture</th>
+            </tr>
+            {% for part in parts_list %}
+                <tr>
+                    <td>
+                        <a href="{% url 'partdetails' code=part.code %}"> {{ part.code }}</a>
+                    </td>
+                    <td>{{ part.description }}</td>
+                    <td style="text-align:center">
+                        <img src="/home/mike/python/djenv/lego/{{ part.picture }}" alt="{{ part.picture }}">
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+<h2>Part Functions</h2>
+
+    <p><a href="">None</a></p><br>
+
+    <p>You have visited {{ num_visits_parts }}{% if num_visits_parts == 1 %} time{% else %} times{% endif %}.</p>
+
+{% endblock %}

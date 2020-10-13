@@ -1,0 +1,48 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+<body class="login">
+
+    <div id="container">
+
+        <h1 style="text-align:center;">myLego</h1>
+            <p style="text-align: center;">Welcome to <em>myLego</em>, a Django website to manage my Lego.</p>
+            <p style="text-align: center;">You need to be logged in to see this page.</p>
+
+        {% if form.errors %}
+            <p class="errornote">Wrong username and/or password. Please try again.</p>
+        {% endif %}
+
+        {% if next %}
+            {% if user.is_authenticated %}
+                <p class="errornote">Your account doesn't have access to this page.</p>
+            {% endif %}
+        {% endif %}
+
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            <div class="form-row">
+                <td id="id_formtag">{{ form.username.label_tag }}</td>
+                <td id="id_formtag">{{ form.username }}</td>
+            </div>
+            <div class="form-row">
+                <td id="id_formtag">{{ form.password.label_tag }}</td>
+                <td id="id_formtag">{{ form.password }}</td>
+            </div>
+
+            <div class="submit-row">
+                <input type="submit" value="login" />
+                <input type="hidden" name="next" value="{{ next }}" />
+            </div>
+        </form>
+
+        {# Assumes you setup the password_reset view in your URLconf #}
+        <br><p class="password-reset-link"><a href="{% url 'password_reset' %}">Lost or forgotten your password?</a></p>
+
+    </div>
+
+</body>
+
+{% endblock %}

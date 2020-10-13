@@ -1,0 +1,62 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% load static %}
+
+<h1>myLego</h1>
+
+    <p>Welcome to <em>myLego</em>, where details for sets in the database can be displayed/edited.</p>
+
+<h2>Set Details</h2><br>
+
+    <p><strong>Code:&nbsp</strong> {{ set.code }}</p>
+    <p><strong>Description:&nbsp</strong> {{ set.description }}</p>
+    <p><strong>Classes:&nbsp</strong> {{ set.set_classes }}</p>
+    <p><strong>Year Released:&nbsp</strong> {{ set.year_released }}</p>
+    <p><strong>Pieces in Set:&nbsp</strong> {{ set.num_pieces }}</p>
+    <p><strong>Instructions URL:&nbsp</strong><a href="{{ set.instructionURL }}" target="_blank"> {{ set.instructionURL }}</a></p>
+    <p><strong>Image Reference:&nbsp</strong> {{ set.picture }}</p><br>
+
+    <img src="/home/mike/python/djenv/lego/{{ set.picture }}" alt="{{ set.picture }}">
+
+<h2>Set Parts</h2><br>
+    <br>
+
+    <div class="tablepane">
+        <table id="tablelist">
+            <col align="center">
+            <col align="left">
+            <col align="left">
+            <col align="left">
+            <col align="center">
+            <col align="left">
+            <tr>
+                <th style="text-align:center">Quantity</th>
+                <th>Code</th>
+                <th>Colour</th>
+                <th>Description</th>
+                <th style="text-align:center">Picture</th>
+                <th>Notes</th>
+            </tr>
+            {% for part in setparts %}
+                <tr>
+                    <td style="text-align:center">{{ part.req_qty }}</td>
+                    <td>
+                        <a href="{% url 'partdetails' code=part.req_part.code %}">
+                            {{ part.req_part.code }}
+                        </a>
+                    </td>
+                    <td>{{ part.req_col.description }}</td>
+                    <td>{{ part.req_part.description }}</td>
+                    <td style="text-align:center"><img src="/home/mike/python/djenv/lego/{{ part.req_part.picture }}" alt="{{ part.req_part.picture }}"></td>
+                    <td>{{ part.part_notes }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+<h2>Set Details Functions</h2>
+
+    <p><a href="">None</a></p><br>
+
+{% endblock %}

@@ -1,0 +1,7 @@
+/.vscode/
+
+/lego/__pycache__/
+/lego/logs/
+
+/myLego/__pycache__/
+

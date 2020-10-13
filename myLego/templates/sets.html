@@ -1,0 +1,53 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% load static %}
+
+<h1>myLego</h1>
+
+    <p>Welcome to <em>myLego</em>, a Django website to manage my Lego.</p>
+
+<h2>Lego Sets</h2>
+
+    <p>The myLego library has the following record counts:</p>
+    <ul>
+        <li><strong>Sets:</strong> {{ num_sets }}</li>
+    </ul>
+
+<h2>Set Listing</h2>
+    <br>
+
+    <div class="tablepane">
+        <table id="tablelist">
+            <col align="left">
+            <col align="left">
+            <col align="left">
+            <col align="center">
+            <tr>
+                <th>Code</th>
+                <th>Description</th>
+                <th>Class</th>
+                <th style="text-align:center">Picture</th>
+            </tr>
+            {% for set in sets_list %}
+                <tr>
+                    <td>
+                        <a href="{% url 'setdetails' code=set.code %}"> {{ set.code }}</a>
+                    </td>
+                    <td>{{ set.description }}</td>
+                    <td>{{ set.set_classes }}</td>
+                    <td style="text-align:center">
+                        <img src="/home/mike/python/djenv/lego/{{ set.picture }}" alt="{{ set.picture }}">
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+<h2>Set Functions</h2>
+
+    <p><a href="{% url 'addset' %}">Add set</a></p><br>
+
+    <p>You have visited {{ num_visits_sets }}{% if num_visits_sets == 1 %} time{% else %} times{% endif %}.</p>
+
+{% endblock %}

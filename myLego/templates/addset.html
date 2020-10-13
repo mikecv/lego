@@ -1,0 +1,65 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% load static %}
+
+<script src="{% static 'scripts/spinner.js' %}"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $("#submitbtn").click(function () {
+            $("#loading").fadeIn();
+            var opts = {
+                lines: 12, // The number of lines to draw
+                length: 50, // The length of each line
+                width: 15, // The line thickness
+                radius: 50, // The radius of the inner circle
+                color: '#000', // #rgb or #rrggbb
+                speed: 1, // Rounds per second
+                trail: 60, // Afterglow percentage
+                shadow: false, // Whether to render a shadow
+                hwaccel: false // Whether to use hardware acceleration
+            };
+            var target = document.getElementById('loading');
+            var spinner = new Spinner(opts).spin(target);
+        });
+    });
+</script>
+
+<div id="loading">
+    <div id="loadingcontent">
+        <div id="loadingspinner">
+        </div>
+    </div>
+</div>
+
+<body class="myform">
+
+    <h1>myLego</h1>
+
+        <p>Welcome to <em>myLego</em>, where new Lego sets can be added to the database.</p>
+        <p>All parts in the set will be added to the Lego parts list.</p>
+        <p>You can optionally add all parts in the set to "My Parts".</p>
+        <br>
+
+        <div id="container">
+            <form action="{% url 'addset' %}" method="post">
+                {% csrf_token %}
+                <div class="form-row">
+                    <td id="entry">{{ form.set_code.label_tag }}</td>
+                    <td id="entry">{{ form.set_code }}</td>
+                </div>
+                <div class="form-row">
+                    <td id="entry">{{ form.my_set.label_tag }}</td>
+                    <td id="entry">{{ form.my_set }}</td>
+                </div>
+
+                <div class="submit-row">
+                    <input id="submitbtn" type="submit" value="Search" />
+                </div>
+            </form>
+        </div>
+
+</body>
+
+{% endblock %}
