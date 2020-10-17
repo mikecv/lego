@@ -141,6 +141,72 @@ def partdetails(request, code):
     )
 
 # **************************************************************
+# Lego part edit view.
+# **************************************************************
+@login_required
+def partedit(request, code):
+    """
+    View function for when a particular part is edit.
+    Display all the details for the part with the requested code,
+    in a form so that they can be edited.
+    """
+    # If this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = EditPartForm(request.POST, request.FILES)
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            data = form.cleaned_data
+            existing_part = PartType.objects.get(code=code)
+            new_description = data['part_description']
+            new_picture = data['part_picture']
+            # Check if the user changed the part description.
+            if new_description != existing_part.description:
+                existing_part.description = new_description
+                existing_part.save()
+                logger.info('User changed part description to: {0}'.format(new_description))
+            else:
+                logger.info('Part description not changed.')
+            # Check if the user changed the part image.
+            if new_picture != existing_part.picture:
+                logger.info('New part picture selected: {0}'.format(new_picture))
+                part_pic_type = os.path.splitext(new_picture.name)[1]
+                # Check if set image already exists, if it does then overwrite.
+                part_image_name = PARTPREFIX + code + part_pic_type
+                absolute_path = PROJPATH + PARTPICLOCN + part_image_name
+                if default_storage.exists(absolute_path) == False:
+                    logger.info('Adding part image : {0}.'.format(part_image_name))
+                    existing_part.picture.save(part_image_name, new_picture)
+                else:
+                    logger.info('Part image already exists,'
+                                ' removing and then re-adding : {0}.'.format((PARTPICLOCN + part_image_name)))
+                    os.remove(absolute_path)
+                    existing_part.picture.save(part_image_name, new_picture)
+            else:
+                logger.info('Part picture not changed.')
+            # No errors, so return back to part details page.
+            url = reverse('partdetails', kwargs={'code': code})
+            return HttpResponseRedirect(url)
+        else:
+            logger.info('Part edit form response is not valid.')
+
+    # If a GET (or any other method) we'll create a blank form.
+    else:
+        part = PartType.objects.filter(code=code)[0]
+        logger.info('Initial values for part: {0}, description: {1}, picture: {2}'.format(part.code, part.description, part.picture))
+        form = EditPartForm(initial={'part_code': part.code, 'part_description': part.description, 'part_picture': part.picture})
+
+    # Render the HTML template partedit.html with the data in the context variable.
+    # The part code is passed as a URL parameter.
+    return render(
+        request,
+        'partedit.html',
+        context={'part': PartType.objects.filter(code=code)[0],
+                 'form': form},
+    )
+
+# **************************************************************
 # Lego parts marked as held (by me) view.
 # **************************************************************
 @login_required

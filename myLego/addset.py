@@ -253,14 +253,17 @@ def parseset(set_id, my_set, logger):
                                         try:
                                             part_img_file = urlopen(part_pic_ref)
                                             part_img = io.BytesIO(part_img_file.read())
+                                        except:
+                                           logger.info('Failed to download part image.')
 
+                                        try:
                                             # If there was an image for this part then save it.
                                             if part_img != None:
                                                 # Check if set image already exists, if it does then overwrite.
                                                 part_image_name = PARTPREFIX + part_id + part_pic_type
                                                 absolute_path = PROJPATH + PARTPICLOCN + part_image_name
                                                 if default_storage.exists(absolute_path) == False:
-                                                    logger.info('Adding part image : {0}.'.format(part_image_name))
+                                                    logger.info('Adding part image : {0}.'.format(absolute_path))
                                                     newpart.picture.save(part_image_name, File(part_img))
                                                 else:
                                                     logger.info('Part image already exists,'
@@ -268,7 +271,7 @@ def parseset(set_id, my_set, logger):
                                                     os.remove(absolute_path)
                                                     newpart.picture.save(part_image_name, File(part_img))
                                         except:
-                                            logger.info('Failed to download part image.')
+                                            logger.info('Failed to save part image to media.')
                                     else:
                                         logger.info('No part image found part: {0}'.format(part_id))
 

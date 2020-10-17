@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^getcols$', views.getcols, name='getcols'),
     url(r'^parts$', views.parts, name='parts'),
     url(r'^part/(?P<code>.+)$', views.partdetails, name='partdetails'),
+    url(r'^partedit/(?P<code>.+)$', views.partedit, name='partedit'),
     url(r'^myparts$', views.myparts, name='myparts'),
     url(r'^sets$', views.sets, name='sets'),
     url(r'^set/(?P<code>.+)$', views.setdetails, name='setdetails'),

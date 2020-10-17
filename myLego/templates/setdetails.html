@@ -15,9 +15,9 @@
     <p><strong>Year Released:&nbsp</strong> {{ set.year_released }}</p>
     <p><strong>Pieces in Set:&nbsp</strong> {{ set.num_pieces }}</p>
     <p><strong>Instructions URL:&nbsp</strong><a href="{{ set.instructionURL }}" target="_blank"> {{ set.instructionURL }}</a></p>
-    <p><strong>Image Reference:&nbsp</strong> {{ set.picture }}</p><br>
+    <p><strong>Image Reference:&nbsp</strong> {{MEDIA_URL}}{{ set.picture.url }}</p><br>
 
-    <img src="/home/mike/python/djenv/lego/{{ set.picture }}" alt="{{ set.picture }}">
+    <img src="{{MEDIA_URL}}{{ set.picture.url }}" alt="{{MEDIA_URL}}{{ set.picture.url }}">
 
 <h2>Set Parts</h2><br>
     <br>
@@ -48,7 +48,7 @@
                     </td>
                     <td>{{ part.req_col.description }}</td>
                     <td>{{ part.req_part.description }}</td>
-                    <td style="text-align:center"><img src="/home/mike/python/djenv/lego/{{ part.req_part.picture }}" alt="{{ part.req_part.picture }}"></td>
+                    <td style="text-align:center"><img src="{{MEDIA_URL}}{{ part.req_part.picture.url }}" alt="{{ part.req_part.picture }}"></td>
                     <td>{{ part.part_notes }}</td>
                 </tr>
             {% endfor %}

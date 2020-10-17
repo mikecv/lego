@@ -45,13 +45,11 @@
                     </td>
                     <td>{{ part.mypartobj.part.description }}</a></td>
                     <td style="text-align:center;
-                        background-color:{{ part.mypartobj.colour.rgb_colour }};
-                        color:{{ part.mypartobj.colour.contrast_colour }};">
+                        background-color:{{ part.mypartobj.colour.rgb_colour }}; color:{{ part.mypartobj.colour.contrast_colour }};">
                         {{ part.mypartobj.colour.description }}
                     </td>
                     <td style="text-align:center">
-                        <img src="/home/mike/python/djenv/lego/{{ part.mypartobj.part.picture }}"
-                             alt="{{ part.mypartobj.part.picture }}">
+                        <img src="{{MEDIA_URL}}{{ part.mypartobj.part.picture.url }}" alt="{{MEDIA_URL}}{{ part.mypartobj.part.picture.url }}">
                     </td>
                 </tr>
             {% endfor %}

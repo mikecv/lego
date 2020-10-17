@@ -30,7 +30,7 @@ class PartType(models.Model):
     """
     code = models.CharField(max_length=20, help_text="Code.", unique=True)
     description = models.CharField(max_length=64, help_text="Description.")
-    picture = models.ImageField(upload_to=PARTPICLOCN, help_text="Picture.", blank=True)
+    picture = models.ImageField(upload_to=PARTROOT, help_text="Picture.", blank=True)
 
     def __str__(self):
         """
@@ -54,7 +54,7 @@ class Set(models.Model):
     set_classes = models.CharField(max_length=80, help_text="Class(es).", blank=True)
     year_released = models.IntegerField(help_text="Year of release.", null=True, blank=True)
     num_pieces = models.IntegerField(help_text="Number of pieces.", default=0)
-    picture = models.ImageField(upload_to=SETPICLOCN, help_text="Picture.", blank=True)
+    picture = models.ImageField(upload_to=SETROOT, help_text="Picture.", blank=True)
     instructionURL = models.URLField(help_text="URL to build instructions.", blank=True)
 
     def __str__(self):

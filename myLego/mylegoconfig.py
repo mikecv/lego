@@ -3,9 +3,13 @@ peeronurlbase = 'http://www.peeron.com'
 seturlbase = peeronurlbase + '/inv/sets/'
 coloursurl = 'http://www.peeron.com/inv/colors'
 
-# Static file locations (relative to project).
+# Media file locations (relative to project).
 PARTPICLOCN = 'myLego/media/parts/'
 SETPICLOCN = 'myLego/media/sets/'
+
+# Media file locations (relative to MEDIA_ROOT).
+PARTROOT = 'parts/'
+SETROOT = 'sets/'
 
 # Media file prefixes.
 PARTPREFIX = 'Part-'

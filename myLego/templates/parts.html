@@ -35,7 +35,7 @@
                     </td>
                     <td>{{ part.description }}</td>
                     <td style="text-align:center">
-                        <img src="/home/mike/python/djenv/lego/{{ part.picture }}" alt="{{ part.picture }}">
+                        <img src="{{MEDIA_URL}}{{ part.picture.url }}" alt="{{MEDIA_URL}}{{ part.picture.url }">
                     </td>
                 </tr>
             {% endfor %}

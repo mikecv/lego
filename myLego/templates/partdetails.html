@@ -12,7 +12,7 @@
     <p><strong>Description:&nbsp</strong> {{ part.description }}</p>
     <p><strong>Image Reference:&nbsp</strong> {{ part.picture }}</p><br>
 
-    <img src="/home/mike/python/djenv/lego/{{ part.picture }}" alt="{{ part.picture }}">
+    <img src="{{MEDIA_URL}}{{ part.picture.url }}" alt="{{MEDIA_URL}}{{ part.picture.url }}">
 
 <h2>Part Details Functions</h2>
 

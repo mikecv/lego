@@ -37,7 +37,7 @@
                     <td>{{ set.description }}</td>
                     <td>{{ set.set_classes }}</td>
                     <td style="text-align:center">
-                        <img src="/home/mike/python/djenv/lego/{{ set.picture }}" alt="{{ set.picture }}">
+                        <img src="{{MEDIA_URL}}{{ set.picture.url }}" alt="{{MEDIA_URL}}{{ set.picture.url }}">
                     </td>
                 </tr>
             {% endfor %}
