@@ -24,8 +24,9 @@ SECRET_KEY = '7nk8x@v-9i@jt9moizpx(rjb13lwttlygxs7($!@7!i-_zxbkl'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = []
+# DEBUG = False
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
 
@@ -118,6 +119,9 @@ STATIC_ROOT = 'myLego/static'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'myLego/media')
+
+# Celery settings.
+CELERY_BROKER_URL = 'amqp://localhost'
 
 LOGGING = {
     'version': 1,

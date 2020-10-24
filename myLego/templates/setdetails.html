@@ -15,7 +15,8 @@
     <p><strong>Year Released:&nbsp</strong> {{ set.year_released }}</p>
     <p><strong>Pieces in Set:&nbsp</strong> {{ set.num_pieces }}</p>
     <p><strong>Instructions URL:&nbsp</strong><a href="{{ set.instructionURL }}" target="_blank"> {{ set.instructionURL }}</a></p>
-    <p><strong>Image Reference:&nbsp</strong> {{MEDIA_URL}}{{ set.picture.url }}</p><br>
+    <p><strong>Image Reference:&nbsp</strong> {{MEDIA_URL}}{{ set.picture.url }}</p>
+    <br>
 
     <img src="{{MEDIA_URL}}{{ set.picture.url }}" alt="{{MEDIA_URL}}{{ set.picture.url }}">
 

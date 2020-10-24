@@ -1,0 +1,40 @@
+Create a virtual environment for Django
+django $ python3 -m venv djenv
+
+Activate the virtual environment
+django $ python3 -m venv djenv
+django $ source djenv/bin/activate
+
+============ Install Django
+
+Install Django
+djenv $ python -m pip install Django
+
+============ Install other packages for myLego
+Install Pillow for working with images.
+djenv $ pip install Pillow
+
+============
+
+Install Celery
+djenv $ pip install Celery
+djenv $ sudo apt install python-celery-common
+
+Install RabbitMQ
+djenv $ sudo apt-get install -y erlang
+djenv $ sudo apt-get install rabbitmq-server
+
+Enable and start RabbitMQ service
+djenv $ systemctl enable rabbitmq-server
+djenv $ systemctl start rabbitmq-server
+
+To check the status of the RabbitMQ service (For testing only)
+djenv $ systemctl status rabbitmq-server
+
+============ Starting servers (from virtual environment.
+
+Start the Django server
+(djenv) lego $ python manage.py runserver
+
+Start the worker process
+(djenv) lego $ celery -A lego worker -l INFO

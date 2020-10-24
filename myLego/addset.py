@@ -1,6 +1,7 @@
 from .models import Colour, PartType, MyPart, Set, SetPart
 from django.core.files import File
 from django.core.files.storage import default_storage
+from celery import shared_task
 from urllib.request import urlopen
 from urllib.error import URLError
 import os
@@ -8,75 +9,20 @@ from os.path import splitext
 import io
 import re
 from .mylegoconfig import *
-from .getcols import getColour, getContrastingcolour
+from .getcols import getColour, getContrastingcolour, addColourToDB
+from .utils import deserialseObject
 
-# **************************************************************
-# Function to get colour information from Peeron colours web page.
-# Need to go to the Peeron lego colours web page.
-# **************************************************************
-def getcolour(part_colour, logger):
-
-    # Function status default to good.
-    func_status = GETCOLS_GOOD
-
-    # Initialise return variables
-    col_description = None
-    col_rgb_colour = '#FFFFFF'
-    contrast_col = '#000000'
-
-    # Check for special case of 'Unknown' colour search requested.
-    # Some sets actual have this colour for parts (mostly multi-colour decals),
-    # but colour does not exist in the Peeron colour list.
-    if part_colour == 'Unknown':
-        col_description = 'Unknown'
-        logger.warning('Unknown colour search requested, returning unknown.')
-    else:
-        # Attempt to read the Peeron colours web page.
-        try:
-            ureq = urlopen(coloursurl, data=None)
-        except URLError as e:
-            # Check for request exceptions.
-            if hasattr(e, 'reason'):
-                func_status = PARSESET_URLRES
-                logger.error('Failed to reach server with reason code : {0}'.format(e.reason))
-            elif hasattr(e, 'code'):
-                func_status = PARSESET_URLCOD
-                logger.error('Server could not fulfill request with error code : {0}'.format(e.code))
-            # Return with error status.
-            return (func_status, col_description, col_rgb_colour, contrast_col)
-        else:
-            ufile = io.TextIOWrapper(ureq, encoding='ISO-8859-1')
-            coldata = ufile.read()
-
-        # Check if the query to the website was successful.
-        # Construct regex string with part colour code included.
-        reg_string = '.+<tbody>.+?<td><a href=.+?>' + part_colour + '</a></td><td>([0-9]*?)</td><td>(.*?)</td><td>([0-9]*?)</td><td>([0-9]*?)</td><td>(<div.*?>)*?([0-9a-fA-F]*?)(</div>)*?</td>'
-        reg_match = re.search(reg_string, coldata, re.DOTALL)
-        if reg_match:
-            parts_this_col = reg_match.group(1)
-            col_description = reg_match.group(2)
-            logger.info('Found colour with code: {0}, description : {1},'
-                        ' Parts this colour : {2}'.format(part_colour, col_description, parts_this_col))
-
-            # If no colour, then default to white, i.e. 0xFFFFFF.
-            if reg_match.group(6) == "":
-                col_rgb_colour = '#FFFFFF'
-            else:
-                col_rgb_colour = '#' + reg_match.group(6)
-            # Determine contrasting colour (for display purposes).
-            contrast_col = getContrastingcolour(logger, col_rgb_colour)
-            logger.info('Found colour with code: {0}, description : {1},'
-                        ' Parts this colour : {2}, RGB colour : {3}'.format(part_colour, col_description, parts_this_col, col_rgb_colour))
-        else:
-            logger.warning('Failed to find this part colour in the Peeron colour list: {0}'.format(part_colour))
-
-    return (func_status, col_description, col_rgb_colour, contrast_col)
+import logging
 
 # **************************************************************
 # Function to parse a lego html file (from Peeron website) and extract set details.
 # Optionally add the set parts to my parts.
 # **************************************************************
-def parseset(set_id, my_set, logger):
+@shared_task
+def parseset(jlogger, set_id, my_set):
+
+    # Serialise logger object.
+    logger =  deserialseObject(jlogger)
 
     # Function status default to good.
     func_status = PARSESET_GOOD
@@ -223,12 +169,21 @@ def parseset(set_id, my_set, logger):
                                     logger.info('Colour already exists in database, not adding.')
                                 else:
                                     # Colour does not exist in the database, so add it.
-                                    # Need to go to the Peeron lego colours web page.
-                                    func_status = getColour(logger, part_col)
+                                    # If colour is not "Unknown" then go look for it on the website.
+                                    if part_col != "Unknown":
+                                        # Need to go to the Peeron lego colours web page.
+                                        logger.debug('Colour not in database, fetching.')
+                                        func_status = getColour(logger, part_col)
 
-                                    # Check if colour search function failed or not.
-                                    if func_status != GETCOLS_GOOD:
-                                        return func_status
+                                        # Check if colour search function failed or not.
+                                        if func_status != GETCOLS_GOOD:
+                                            return func_status
+                                    else:
+                                        # Special case for parts like stickers etc that don't have a colour.
+                                        # These parts generally have a colour called "Unknown".
+                                        # Just add this 'colour' to the database, don't need to do web search.
+                                        logger.debug('Colour specified as \"Unknown\", treated specially.')
+                                        addColourToDB(logger, part_col, "Not applicable", "#FFFFFF", "#000000")
 
                                 # The part also needs to exist before it can be added to a set.
                                 # Check if the part already exists in the database.
@@ -241,6 +196,7 @@ def parseset(set_id, my_set, logger):
                                     newpart.save()
 
                                     # Find the link to the part image (if there is one).
+                                    haveImage = False
                                     part_img = None
                                     reg_string = '.+?src="(.+?)"'
                                     part_pic_match = re.search(reg_string, part_match.group(5), re.DOTALL)
@@ -253,10 +209,12 @@ def parseset(set_id, my_set, logger):
                                         try:
                                             part_img_file = urlopen(part_pic_ref)
                                             part_img = io.BytesIO(part_img_file.read())
+                                            haveImage = True
                                         except:
-                                           logger.info('Failed to download part image.')
+                                            logger.warning('Failed to download part image.')
+                                            haveImage = False
 
-                                        try:
+                                        if haveImage == True:
                                             # If there was an image for this part then save it.
                                             if part_img != None:
                                                 # Check if set image already exists, if it does then overwrite.
@@ -270,10 +228,39 @@ def parseset(set_id, my_set, logger):
                                                                 ' removing and then re-adding : {0}.'.format((PARTPICLOCN + part_image_name)))
                                                     os.remove(absolute_path)
                                                     newpart.picture.save(part_image_name, File(part_img))
-                                        except:
-                                            logger.info('Failed to save part image to media.')
+                                        else:
+                                            # Create part using default "Unavailable" image.
+                                            new_picture = PROJPATH + PARTPICLOCN + DEFPARTPIC
+                                            logger.info('New part picture from default: {0}'.format(new_picture))
+                                            part_pic_type = os.path.splitext(new_picture)[1]
+                                            # Check if set image already exists, if it does then overwrite.
+                                            part_image_name = PARTPREFIX + part_id + part_pic_type
+                                            absolute_path = PROJPATH + PARTPICLOCN + part_image_name
+                                            if default_storage.exists(absolute_path) == False:
+                                                logger.info('Adding default part image : {0}.'.format(part_image_name))
+                                                newpart.picture.save(part_image_name, File(open(new_picture, 'rb')))
+                                            else:
+                                                logger.info('Part image already exists,'
+                                                            ' removing and then re-adding : {0}.'.format((PARTPICLOCN + part_image_name)))
+                                                os.remove(absolute_path)
+                                                newpart.picture.save(part_image_name, File(open(new_picture, 'rb')))
                                     else:
-                                        logger.info('No part image found part: {0}'.format(part_id))
+                                        logger.info('No part image found for part: {0}'.format(part_id))
+                                        # Create part using default "Unavailable" image.
+                                        new_picture = PROJPATH + PARTPICLOCN + DEFPARTPIC
+                                        logger.info('New part picture from default: {0}'.format(new_picture))
+                                        part_pic_type = os.path.splitext(new_picture)[1]
+                                        # Check if set image already exists, if it does then overwrite.
+                                        part_image_name = PARTPREFIX + part_id + part_pic_type
+                                        absolute_path = PROJPATH + PARTPICLOCN + part_image_name
+                                        if default_storage.exists(absolute_path) == False:
+                                            logger.info('Adding default part image : {0}.'.format(part_image_name))
+                                            newpart.picture.save(part_image_name, File(open(new_picture, 'rb')))
+                                        else:
+                                            logger.info('Part image already exists,'
+                                                        ' removing and then re-adding : {0}.'.format((PARTPICLOCN + part_image_name)))
+                                            os.remove(absolute_path)
+                                            newpart.picture.save(part_image_name, File(open(new_picture, 'rb')))
 
                                 # We can create a list of parts in the set so that we can create and link to the set
                                 # later when we create the set.

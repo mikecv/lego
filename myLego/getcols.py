@@ -6,6 +6,14 @@ import re
 from .mylegoconfig import *
 
 # **************************************************************
+# Function to add colour.
+# **************************************************************
+def addColourToDB(logger, col_code, col_description, col_rgb_colour, contrast_col):
+        logger.info('Adding new colour : {0}.'.format(col_code))
+        newcol = Colour(code=col_code, description=col_description, rgb_colour=col_rgb_colour, contrast_colour=contrast_col)
+        newcol.save()
+
+# **************************************************************
 # Function to get a contrasting text colour to the supplied background colour.
 # Contrasting colour is either black or white depending on the 'brightness' of the background.
 # **************************************************************
@@ -99,9 +107,10 @@ def getColours(logger):
                 logger.info('Colour already exists in database, not adding.')
             else:
                 # Colour does not exist in the database, so add it.
-                logger.info('Adding new colour : {0}.'.format(col_code))
-                newcol = Colour(code=col_code, description=col_description, rgb_colour=col_rgb_colour, contrast_colour=contrast_col)
-                newcol.save()
+                addColourToDB(logger, col_code, col_description, col_rgb_colour, contrast_col)
+                # logger.info('Adding new colour : {0}.'.format(col_code))
+                # newcol = Colour(code=col_code, description=col_description, rgb_colour=col_rgb_colour, contrast_colour=contrast_col)
+                # newcol.save()
     else:
         func_status = GETCOLS_NOHEAD
         logger.error('Failed to find header information in Peeron colours page.')
@@ -179,9 +188,10 @@ def getColour(logger, col_code):
                 logger.info('Colour already exists in database, not adding.')
             else:
                 # Colour does not exist in the database, so add it.
-                logger.info('Adding new colour : {0}.'.format(col_code))
-                newcol = Colour(code=col_code, description=col_description, rgb_colour=col_rgb_colour, contrast_colour=contrast_col)
-                newcol.save()
+                # logger.info('Adding new colour : {0}.'.format(col_code))
+                # newcol = Colour(code=col_code, description=col_description, rgb_colour=col_rgb_colour, contrast_colour=contrast_col)
+                # newcol.save()
+                addColourToDB(logger, col_code, col_description, col_rgb_colour, contrast_col)
     else:
         func_status = GETCOLS_NOHEAD
         logger.error('Failed to find header information in Peeron colours page.')

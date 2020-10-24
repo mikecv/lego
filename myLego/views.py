@@ -1,14 +1,20 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
+from django.urls import reverse
 from django.shortcuts import render
+from django.core.files.storage import default_storage
 
 import logging
+import pickle, zlib, base64
+
+import os
 
 from .models import Colour, PartType, MyPart, Set, SetPart
 from .modellists import sortpartqtys
 from .forms import AddSetForm, EditPartForm
 from .getcols import getColours, getColour
 from .addset import parseset
+from .utils import serialseObject
 
 from .mylegoconfig import *
 
@@ -86,7 +92,7 @@ def getcols(request):
     # If this is a POST request we need to process the form data
     if request.method != 'POST':
         # Call function to retrieve all the colour data from the net.
-        getcol_status = getcolour(logger)
+        getcol_status = getColours(logger)
         if getcol_status == GETCOLS_GOOD:
             # No errors, so return back to colours page.
             return HttpResponseRedirect('colours')
@@ -318,12 +324,15 @@ def addset(request):
                 return HttpResponseRedirect(url)
             else:
                 # Call function to parse the selected set data from the net.
-                addsest_status = parseset(set_code, my_set, logger)
+                addsest_status = parseset.delay(serialseObject(logger), set_code, my_set)
+                # TODO - set status as pending and then monitor.
+                addsest_status = PARSESET_GOOD
                 if addsest_status == PARSESET_GOOD:
                     # No errors, so return back to sets page.
                     return HttpResponseRedirect('sets')
                 else:
                     # Error returned, so go to bad status page and display error.
+                    logger.info('Parseset was bad')
                     url = reverse('badfunc', kwargs={'status': addsest_status})
                     return HttpResponseRedirect(url)
 

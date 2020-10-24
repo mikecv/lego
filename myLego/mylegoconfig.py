@@ -15,6 +15,9 @@ SETROOT = 'sets/'
 PARTPREFIX = 'Part-'
 SETPREFIX = 'Set-'
 
+# Default media files.
+DEFPARTPIC = 'unavailable.jpg'
+
 # Absolute path to project.
 PROJPATH = '/home/mike/python/django/djenv/lego/'
 
