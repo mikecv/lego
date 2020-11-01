@@ -325,10 +325,6 @@ def addset(request):
             else:
                 # Call function to parse the selected set data from the net.
                 result = parseset.delay(serialseObject(logger), set_code, my_set)
-                # return render(request,
-                #     'sets.html',
-                #     context={'task_id': result.task_id}
-                # )
                 return render(request,
                     'progress.html',
                     context={'task_id': result.task_id}
