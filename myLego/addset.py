@@ -11,6 +11,7 @@ import re
 from .mylegoconfig import *
 from .getcols import getColour, getContrastingcolour, addColourToDB
 from .utils import deserialseObject
+from celery_progress.backend import ProgressRecorder
 
 import logging
 
@@ -18,11 +19,18 @@ import logging
 # Function to parse a lego html file (from Peeron website) and extract set details.
 # Optionally add the set parts to my parts.
 # **************************************************************
-@shared_task
-def parseset(jlogger, set_id, my_set):
+@shared_task(bind=True)
+def parseset(self, jlogger, set_id, my_set):
 
     # Serialise logger object.
     logger =  deserialseObject(jlogger)
+
+    # Progress monitoring parameters.
+    pr = ProgressRecorder(self)
+    # Percent complete.
+    pc_Complete = 1
+    pr.set_progress(pc_Complete, 100, description="Accessing web resource...")
+    logger.debug('Progress percentage: {0:d}'.format(pc_Complete))
 
     # Function status default to good.
     func_status = PARSESET_GOOD
@@ -103,6 +111,14 @@ def parseset(jlogger, set_id, my_set):
                         # Can use this later to check that parts list adds up.
                         num_pieces = int(reg_match.group(3))
                         logger.info('Number of pieces in set : {0}'.format(num_pieces))
+
+                        # A lot of sets on the web have incorrect number of parts specified in the set.
+                        # Some even have 0.
+                        # Set minimum to 1 as not a set without any parts, and needed for progress bar.
+                        if num_pieces < 1:
+                            num_pieces = 1
+                            logger.warning('Number of pieces in set changed to minimum: {0}'.format(num_pieces))
+
                         # Get link to instructions if they exist.
                         # Need to check if a instruction download link exists.
                         instruction_string = '.+?Need building instructions.+?FREE Download:.+?<a href="(.+?)".+?'
@@ -119,6 +135,7 @@ def parseset(jlogger, set_id, my_set):
                         setdata = setdata[len(reg_match.group(0)):]
 
                         # Find the link to the set image (if there is one).
+                        haveSetImage = False
                         set_img = None
                         reg_string = '.+?<a href="/inv/sets/.+?<img id="setpic" src="(.+?)"'
                         reg_match = re.search(reg_string, setdata, re.DOTALL)
@@ -130,8 +147,10 @@ def parseset(jlogger, set_id, my_set):
                             try:
                                 set_img_file = urlopen(net_set_pic_ref)
                                 set_img = io.BytesIO(set_img_file.read())
+                                haveSetImage = True
                             except:
                                 logger.info('Failed to download set image.')
+                                haveSetImage = False
 
                             # Shorten the search string appropriatly for the next search.
                             # Do it here in case no set image string found.
@@ -161,6 +180,17 @@ def parseset(jlogger, set_id, my_set):
                                             ' Colour : {3},'
                                             ' Note : {4}'.format(part_qty, part_id, part_desc, part_col, part_note))
                                 part_qty_chk += part_qty
+
+                                # Determine percent complete of processing based on parts processed.
+                                # Must have min of 1 %
+                                # Go to max of 90% for parts reading.
+                                pc_Complete = int(part_qty_chk / num_pieces * 90)
+                                if pc_Complete < 1:
+                                    pc_Complete = 1
+                                if pc_Complete > 90:
+                                    pc_Complete = 90
+                                pr.set_progress(pc_Complete, 100, description="Getting part: {0}".format(part_id))
+                                logger.debug('Progress percentage: {0:d}'.format(pc_Complete))
 
                                 # The colour needs to exist before the part can be created.
                                 # Check if the colour already exists in the database.
@@ -196,7 +226,7 @@ def parseset(jlogger, set_id, my_set):
                                     newpart.save()
 
                                     # Find the link to the part image (if there is one).
-                                    haveImage = False
+                                    havePartImage = False
                                     part_img = None
                                     reg_string = '.+?src="(.+?)"'
                                     part_pic_match = re.search(reg_string, part_match.group(5), re.DOTALL)
@@ -209,12 +239,12 @@ def parseset(jlogger, set_id, my_set):
                                         try:
                                             part_img_file = urlopen(part_pic_ref)
                                             part_img = io.BytesIO(part_img_file.read())
-                                            haveImage = True
+                                            havePartImage = True
                                         except:
                                             logger.warning('Failed to download part image.')
-                                            haveImage = False
+                                            havePartImage = False
 
-                                        if haveImage == True:
+                                        if havePartImage == True:
                                             # If there was an image for this part then save it.
                                             if part_img != None:
                                                 # Check if set image already exists, if it does then overwrite.
@@ -233,7 +263,7 @@ def parseset(jlogger, set_id, my_set):
                                             new_picture = PROJPATH + PARTPICLOCN + DEFPARTPIC
                                             logger.info('New part picture from default: {0}'.format(new_picture))
                                             part_pic_type = os.path.splitext(new_picture)[1]
-                                            # Check if set image already exists, if it does then overwrite.
+                                            # Check if part image already exists, if it does then overwrite.
                                             part_image_name = PARTPREFIX + part_id + part_pic_type
                                             absolute_path = PROJPATH + PARTPICLOCN + part_image_name
                                             if default_storage.exists(absolute_path) == False:
@@ -297,12 +327,13 @@ def parseset(jlogger, set_id, my_set):
                                                ' Found : {1} '.format(num_pieces, part_qty_chk))
 
                             # Add the set to the database.
+                            # Correct the number of pieces from what was in set description to number of parts found.
                             logger.info('Adding new set: {0}.'.format(net_set_id))
                             newset = Set(code=net_set_id,
                                          description=net_set_name,
                                          set_classes=lego_class_string,
                                          year_released=set_year,
-                                         num_pieces=num_pieces,
+                                         num_pieces=part_qty_chk,
                                          instructionURL=instruction_ref
                                          )
                             newset.save()
@@ -318,9 +349,13 @@ def parseset(jlogger, set_id, my_set):
                                     my_part.allocation = newset
                                     my_part.save()
 
-                            # If there was an image for this set then save it.
+                            # If there was an image for this set then save it,
+                            # else save a default "Unavailable" set image.
                             # Just check first if the set image already exists.
-                            if set_img != None:
+                            if haveSetImage == True:
+                                pc_Complete = 90
+                                pr.set_progress(pc_Complete, 100, description="Getting set picture...")
+                                logger.debug('Progress percentage: {0:d}'.format(90))
                                 # Check if set image already exists, if it does then overwrite.
                                 set_image_name = SETPREFIX + net_set_id + net_set_pic_type
                                 absolute_path = PROJPATH + SETPICLOCN + set_image_name
@@ -331,6 +366,22 @@ def parseset(jlogger, set_id, my_set):
                                     logger.info('Set image already exists, removing and then re-adding : {0}.'.format((SETPICLOCN + set_image_name)))
                                     os.remove(absolute_path)
                                     newset.picture.save(set_image_name, File(set_img))
+                            else:
+                                # Create part using default "Unavailable" image.
+                                new_picture = PROJPATH + SETPICLOCN + DEFSETPIC
+                                logger.info('New set picture from default: {0}'.format(new_picture))
+                                set_pic_type = os.path.splitext(new_picture)[1]
+                                # Check if set image already exists, if it does then overwrite.
+                                set_image_name = SETPREFIX + set_id + set_pic_type
+                                absolute_path = PROJPATH + SETPICLOCN + set_image_name
+                                if default_storage.exists(absolute_path) == False:
+                                    logger.info('Adding default set image : {0}.'.format(set_image_name))
+                                    newset.picture.save(set_image_name, File(open(new_picture, 'rb')))
+                                else:
+                                    logger.info('Set image already exists,'
+                                                ' removing and then re-adding : {0}.'.format((SETPICLOCN + set_image_name)))
+                                    os.remove(absolute_path)
+                                    newset.picture.save(set_image_name, File(open(new_picture, 'rb')))
                         else:
                             # Could not find the header section of the parts list table.
                             logger.info('No parts table found for this set.')
@@ -338,5 +389,9 @@ def parseset(jlogger, set_id, my_set):
             else:
                 func_status = PARSESET_NOSET
                 logger.error('No Lego set ID or description found when parsing website.')
+
+    pc_Complete = 100
+    pr.set_progress(pc_Complete, 100, description="Task Complete!")
+    logger.debug('Progress percentage: {0:d}'.format(pc_Complete))
 
     return func_status

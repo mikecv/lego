@@ -38,6 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+	# 'celery',
+    'django_celery_results',
+    'celery_progress',
 ]
 
 MIDDLEWARE = [
@@ -122,6 +126,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'myLego/media')
 
 # Celery settings.
 CELERY_BROKER_URL = 'amqp://localhost'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = 'django-db'
 
 LOGGING = {
     'version': 1,
@@ -154,7 +161,7 @@ LOGGING = {
         # Set up an application logger, and log to console and log file.
         'legoLogger': {
             'handlers': ['file', 'console'],
-            'level': 'INFO',
+            'level': 'DEBUG',
             'propagate': True,
         },
     },

@@ -1,0 +1,41 @@
+{% extends "base_generic.html" %}
+
+{% load static %}
+
+{% block content %}
+
+    <h1>myLego Task Progess</h1>
+
+    <p>Progress indication of long running myLego tasks.</p>
+    <p>Should the task return an error you will be directed to a page describing the error.</p>
+    <br>
+
+    <div class='progress-wrapper'>
+        <div id='progress-bar' class='progress-bar' style="background-color: #68a9ef; width: 0%;">&nbsp;</div>
+    </div>
+    <div id="progress-bar-message">Accessing web resource...</div>
+
+    <script src="{% static 'celery_progress/celery_progress.js' %}"></script>
+
+    <script>
+        var progressUrl = "{% url 'celery_progress:task_status' task_id %}";
+
+        function customResult(resultElement, result) {
+            $( resultElement ).append(
+                $('<p>').text('Task Status: ' + result),
+                // Wait for a second and then return to page before the form, i.e. 2 pages ago.
+                setTimeout(function () { history.go(-2) }, 1000),
+            );
+        }
+    </script>
+
+    <script>
+        $(function () {
+            CeleryProgressBar.initProgressBar(progressUrl, {
+                onResult: customResult,
+                onProgress: customProgress,
+            })
+        });
+    </script>
+
+{% endblock %}

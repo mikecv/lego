@@ -324,17 +324,15 @@ def addset(request):
                 return HttpResponseRedirect(url)
             else:
                 # Call function to parse the selected set data from the net.
-                addsest_status = parseset.delay(serialseObject(logger), set_code, my_set)
-                # TODO - set status as pending and then monitor.
-                addsest_status = PARSESET_GOOD
-                if addsest_status == PARSESET_GOOD:
-                    # No errors, so return back to sets page.
-                    return HttpResponseRedirect('sets')
-                else:
-                    # Error returned, so go to bad status page and display error.
-                    logger.info('Parseset was bad')
-                    url = reverse('badfunc', kwargs={'status': addsest_status})
-                    return HttpResponseRedirect(url)
+                result = parseset.delay(serialseObject(logger), set_code, my_set)
+                # return render(request,
+                #     'sets.html',
+                #     context={'task_id': result.task_id}
+                # )
+                return render(request,
+                    'progress.html',
+                    context={'task_id': result.task_id}
+                )
 
     # If a GET (or any other method) we'll create a blank form.
     else:

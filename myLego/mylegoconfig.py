@@ -17,6 +17,7 @@ SETPREFIX = 'Set-'
 
 # Default media files.
 DEFPARTPIC = 'unavailable.jpg'
+DEFSETPIC = 'unavailable.jpg'
 
 # Absolute path to project.
 PROJPATH = '/home/mike/python/django/djenv/lego/'
@@ -33,10 +34,10 @@ PARSESET_URLCOD = 4
 PARSESET_NOSET = 5
 PARSESET_NOPARTS = 6
 PARSESET_NOCOL = 7
-GETCOLS_GOOD = 8
-GETCOLS_URLRES = 9
-GETCOLS_URLCOD = 10
-GETCOLS_NOHEAD = 11
+GETCOLS_GOOD = 0
+GETCOLS_URLRES = 8
+GETCOLS_URLCOD = 9
+GETCOLS_NOHEAD = 10
 
 bad_function_status = {
     PARSESET_GOOD : "Success.",

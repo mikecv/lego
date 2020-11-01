@@ -42,6 +42,11 @@ urlpatterns += [
     url(r'^$', RedirectView.as_view(url='/myLego/', permanent=True)),
 ]
 
+# Celery progress
+urlpatterns += [
+    url(r'^celery-progress/', include('celery_progress.urls')),
+]
+
 # Use static() to add url mapping to serve static files during development (only)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
