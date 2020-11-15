@@ -23,8 +23,6 @@
         function customResult(resultElement, result) {
             $( resultElement ).append(
                 $('<p>').text('Task Status: ' + result),
-                // Wait for a second and then return to page before the form, i.e. 2 pages ago.
-                setTimeout(function () { history.go(-2) }, 1000),
             );
         }
     </script>
